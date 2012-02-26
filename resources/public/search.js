@@ -56,7 +56,14 @@ tutorial.notepad.JavaLib = function(packageId, artifactId, container) {
  * Creates the DOM structure for the note and adds it to the document.
  */
 tutorial.notepad.JavaClass.prototype.makeDom = function() {
-    goog.dom.appendChild(this.parent, goog.dom.createDom('div', {'class': 'clazz'}, this.packageName + "." + this.className));
+    classElement = goog.dom.createDom('div', {'class': 'clazz'}, this.packageName + "." + this.className);
+
+    goog.dom.appendChild(this.parent, classElement);
+    goog.events.listen(classElement, goog.events.EventType.CLICK,
+                    function(e) {
+                        alert(this.innerHTML);
+                    }, false, classElement);
+
 };
 
 tutorial.notepad.JavaLib.prototype.makeDom = function() {
@@ -64,48 +71,6 @@ tutorial.notepad.JavaLib.prototype.makeDom = function() {
 };
 
 
-tutorial.notepad.makeRichRow_ = function(item, itemType, itemClassName) {
-    item.type = itemType;
-
-    item.render = function(node, token) {
-        var dom_ = goog.dom.getDomHelper(node);
-        var typeNode = dom_.createDom("span", itemClassName);
-        dom_.appendChild(typeNode, dom_.createTextNode(itemType));
-
-        var nameNode = dom_.createDom("span");
-        dom_.appendChild(nameNode, dom_.createTextNode(item.name));
-
-        dom_.appendChild(node, typeNode);
-        dom_.appendChild(node, nameNode);
-    };
-
-    item.select = function(target) {
-        target.value = item.name;
-    };
-
-    return item;
-};
-
-tutorial.notepad.apple = function(item) {
-    return tutorial.notepad.makeRichRow_(item, "Apple", "apple");
-};
-
-tutorial.notepad.citrus = function(item) {
-    return tutorial.notepad.makeRichRow_(item, "Citrus", "citrus");
-};
-
-tutorial.notepad.berry = function(item) {
-    return tutorial.notepad.makeRichRow_(item, "Berry", "berry");
-};
-
-javaClass = function(item) {
-    return tutorial.notepad.makeRichRow_(item, "Class", "class");
-};
-
-
-totalJavaClasses = function(item) {
-    return tutorial.notepad.makeRichRow_(item, "Class", "class");
-};
 
     
     

@@ -25,7 +25,6 @@
 <body>
 <div class="container">
 
-    <div class="height:50px"></div>
 
     <div class="row">
         <div class="span2">Search:</div>
@@ -35,19 +34,41 @@
     </div>
 
     <div class="row">
+        <div id="searchStatus" class="span10"></div>
+    </div>
+
+    <div class="row">
         <div id="classes" class="span5"></div>
         <div id="libs" class="span5"></div>
     </div>
 
     <script>
 
+        function setStatus(txt) {
+            var dom_ = new goog.dom.DomHelper();
+            var searchStatus = goog.dom.getElement('searchStatus');
+
+            dom_.removeChildren(searchStatus);
+            goog.dom.appendChild(searchStatus, goog.dom.createDom('div', {'class': 'title'}, txt));
+
+        }
         function showSearchResults(x, e) {
+
+            setStatus('');
+            var searchInput = goog.dom.getElement('searchInput');
+            var classesContainer = goog.dom.getElement('classes');
+            var libsContainer = goog.dom.getElement('libs');
 
             var dom_ = new goog.dom.DomHelper();
             dom_.removeChildren(classesContainer);
             dom_.removeChildren(libsContainer);
 
-            obj = x.getResponseJson();
+            try {
+                obj = x.getResponseJson();
+            } catch(e) {
+                setStatus('Network error. Try later');
+                return;
+            }
 
             totalClasses = obj['totalClasses'];
             goog.dom.appendChild(classesContainer, goog.dom.createDom('div', {'class': 'title'}, 'Found ' + totalClasses + ' classes'));
@@ -65,29 +86,25 @@
             for (i = 0; i < classes.length; i++) {
                 var l = new tutorial.notepad.JavaLib(classes[i]['packageId'], classes[i]['artifactId'], libsContainer);
                 l.makeDom();
-
             }
-
         }
 
-
-        var searchInput = goog.dom.getElement('searchInput');
-        var classesContainer = goog.dom.getElement('classes');
-        var libsContainer = goog.dom.getElement('libs');
 
         // var ac1 = new goog.ui.AutoComplete.RichRemote("/service.json", input1);
         var taSearch = new goog.ui.Textarea();
 
         taSearch.decorate(searchInput);
-        goog.events.listen(searchInput,
-                goog.events.EventType.KEYUP,
+        goog.events.listen(searchInput, goog.events.EventType.KEYUP,
                 function(e) {
-                    if (this.value.length > 2) {
+                    if (this.value.length > 1) {
+                        setStatus('Searching...');
                         var xhr = new goog.net.XhrIo();
                         xhr.send('/search?token=' + this.value);
                         goog.events.listen(xhr, goog.net.EventType.COMPLETE, function(e) {
                             showSearchResults(this, e);
                         });
+                    } else {
+                        setStatus('Type at least 2 charachters')
                     }
                 });
 
