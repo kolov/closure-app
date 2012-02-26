@@ -9,5 +9,5 @@
   :dev-dependencies [[ring/ring-devel "0.3.7"]
                      [lein-ring "0.5.4"]
                      [ring-serve "0.1.1"]]
-  :main 'net.kolov.jaclo.core
+  :main net.kolov.jaclo.core
   :ring {:handler net.kolov.jaclo.core/app})
