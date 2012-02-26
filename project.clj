@@ -3,10 +3,10 @@
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [compojure "1.0.1"]
                  [clj-stacktrace "0.2.4"]
-                 [ring/ring-core "1.0.2"]
+                 [ring/ring-core "1.1.0-SNAPSHOT"]
                  [clj-http "0.3.0"]
-                 [ring/ring-jetty-adapter "1.0.2"]]
-  :dev-dependencies [[ring/ring-devel "1.0.2"]
+                 [ring/ring-jetty-adapter "1.1.0-SNAPSHOT"]]
+  :dev-dependencies [[ring/ring-devel "1.1.0-SNAPSHOT"]
                      [lein-ring "0.5.4"]
                      [ring-serve "0.1.1"]]
   :main net.kolov.jaclo.server
