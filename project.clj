@@ -5,8 +5,8 @@
                  [clj-stacktrace "0.2.4"]
                  [ring/ring-core "0.3.7"]
                  [clj-http "0.3.0"]
-                 [ring/ring-jetty-adapter "0.3.7"]]
-  :dev-dependencies [[ring/ring-devel "0.3.7"]
+                 [ring/ring-jetty-adapter "1.0.1"]]
+  :dev-dependencies [[ring/ring-devel "1.0.1"]
                      [lein-ring "0.5.4"]
                      [ring-serve "0.1.1"]]
   :main net.kolov.jaclo.server
