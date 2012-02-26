@@ -19,12 +19,12 @@
     {:body (svc-call (str AJC-URL "?" (:query-string req)))})
   (GET "/req/*" [:as r] {:body (str r)})
   (r/resources "/")
-  (r/not-found "<h1>Page not found</h1> <br/> Probably you want to <a href=\"/browse/maven/central\"> browse the jars and classes on maven central</a>")
+  (r/not-found "<h1>Page not found</h1> <br/> Try <a href=\"/search.html\">search.html</a>")
   )
 
-(defn app-reload [] (-> app-routes (handler/site)
-                      (wrap-reload #'app-routes '(net.kolov.jaclo.server))
-                      ))
+;(defn app-reload [] (-> app-routes (handler/site)
+;                      (wrap-reload #'app-routes '(net.kolov.jaclo.server))
+;                      ))
 
 (defservice app-routes)
 
