@@ -29,11 +29,10 @@
 (defservice app-routes)
 
 (def app (handler/site app-routes))
-(defonce server
-  (ring/run-jetty #'app {:port 8888 :join? false}))
+;(defonce server  (ring/run-jetty #'app {:port 8888 :join? false}))
+                         ; to start: (use 'ring.util.serve)
+                                        ; (serve app)
 
 (defn -main [port]
   (ring/run-jetty app {:port (Integer. port)}))
-                                        ; to start: (use 'ring.util.serve)
-                                        ; (serve app)
-
+               
