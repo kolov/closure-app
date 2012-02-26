@@ -1,7 +1,7 @@
 (ns net.kolov.jaclo.server
   (:use compojure.core
         ring.util.servlet
-        [ring.middleware params session file file-info stacktrace reload]
+        [ring.middleware params session file file-info reload]
         )
   (:require [compojure.route :as r]
             [clj-http.client :as c]
