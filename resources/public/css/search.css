@@ -1,0 +1,20 @@
+.apple {
+    background-color: #990033;
+    color: #FFFFFF;
+    margin: 3px;
+    font-style: italic;
+}
+
+.citrus {
+    background-color: #CCCC33;
+    color: #FFFFFF;
+    margin: 3px;
+    font-style: italic;
+}
+
+.berry {
+    background-color: #009933;
+    color: #FFFFFF;
+    margin: 3px;
+    font-style: italic;
+}
