@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Notepad</title>
-    <!--script src="/jslib/bootstrap/js/bootstrap.js"></script-->
+    <title>Notepad</title> 
     <script src="/jslib/closure-library/closure/goog/base.js"></script>
+    <script src="/jslib/jquery-1.7.js"></script>
     <script>
         goog.require('goog.dom');
         goog.require('goog.events');
-        goog.require('goog.events.EventType');
+        goog.require('goog.events.EventType');   
         goog.require('goog.ui.Control');
         goog.require('goog.ui.ControlRenderer');
         goog.require('goog.ui.Textarea');
@@ -16,33 +16,8 @@
         goog.require('goog.net.XhrIo');
     </script>
     <script src="search.js"></script>
-    <link rel="stylesheet" href="/css/search.css">
-    <link rel="stylesheet" href="/jslib/bootstrap/css/bootstrap.css">
-    <link rel="stylesheet" href="/jslib/bootstrap/css/bootstrap-responsive.css">
-
-</head>
-</head>
-<body>
-<div class="container">
-
-
-    <div class="row">
-        <div class="span2">Search:</div>
-        <div class="span9">
-            <textarea id="searchInput" style="width: 60em; height: 1em;"></textarea>
-        </div>
-    </div>
-
-    <div class="row">
-        <div id="searchStatus" class="span10"></div>
-    </div>
-
-    <div class="row">
-        <div id="classes" class="span5"></div>
-        <div id="libs" class="span5"></div>
-    </div>
-
-    <script>
+    
+      <script>
 
         function setStatus(txt) {
             var dom_ = new goog.dom.DomHelper();
@@ -88,28 +63,59 @@
                 l.makeDom();
             }
         }
+        
+        function initSearchPage() 
+        {         
+            goog.events.listen(searchInput, goog.events.EventType.KEYUP,
+                    function(e) {
+                        if (this.value.length > 1) {
+                            setStatus('Searching...');
+                            var xhr = new goog.net.XhrIo();
+                            xhr.send('/search?token=' + this.value);
+                            goog.events.listen(xhr, goog.net.EventType.COMPLETE, function(e) {
+                                showSearchResults(this, e);
+                            });
+                        } else {
+                            setStatus('Type at least 2 charachters')
+                        }
+                    });
+        }
+        </script>
+        <script>
 
-
-        // var ac1 = new goog.ui.AutoComplete.RichRemote("/service.json", input1);
-        var taSearch = new goog.ui.Textarea();
-
-        taSearch.decorate(searchInput);
-        goog.events.listen(searchInput, goog.events.EventType.KEYUP,
-                function(e) {
-                    if (this.value.length > 1) {
-                        setStatus('Searching...');
-                        var xhr = new goog.net.XhrIo();
-                        xhr.send('/search?token=' + this.value);
-                        goog.events.listen(xhr, goog.net.EventType.COMPLETE, function(e) {
-                            showSearchResults(this, e);
-                        });
-                    } else {
-                        setStatus('Type at least 2 charachters')
-                    }
-                });
-
+       // $(document).ready( 
+        		initSearchPage       ();  
+       //);
 
     </script>
+    
+    <link rel="stylesheet" href="/css/search.css">
+    <link rel="stylesheet" href="/jslib/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="/jslib/bootstrap/css/bootstrap-responsive.css">
+
+</head>
+</head>
+<body>
+<div class="container">
+
+<h1 style="margin:30px;">Hi</h1>
+
+    <div class="row">
+        <div class="span2">Search:</div>
+        <div class="span9">
+            <input type='text' id="searchInput" style="width: 60em; "></textarea>
+        </div>
+    </div>
+
+    <div class="row">
+        <div id="searchStatus" class="span10"></div>
+    </div>
+
+    <div class="row">
+        <div id="classes" class="span5"></div>
+        <div id="libs" class="span5"></div>
+    </div>
+  
 </div>
 </body>
 </html>
