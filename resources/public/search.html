@@ -1,92 +1,8 @@
-<!DOCTYPE html>
 <html>
 <head>
-<title>Notepad</title>
-<script src="/jslib/closure-library/closure/goog/base.js"></script>
-<script src="/jslib/jquery-1.7.js"></script>
-<script>
-	goog.require('goog.dom');
-	goog.require('goog.events');
-	goog.require('goog.events.EventType');
-	goog.require('goog.userAgent');
-	goog.require('goog.net.XhrIo');
-</script>
-<script src="search.js"></script>
-
-<script>
-	function setStatus(txt) {
-		var dom_ = new goog.dom.DomHelper();
-		var searchStatus = goog.dom.getElement('searchStatus');
-
-		dom_.removeChildren(searchStatus);
-		goog.dom.appendChild(searchStatus, goog.dom.createDom('div', {
-			'class' : 'title'
-		}, txt));
-
-	}
-	function showSearchResults(x, e) {
-
-		setStatus('');
-		var searchInput = goog.dom.getElement('searchInput');
-		var classesContainer = goog.dom.getElement('classes');
-		var libsContainer = goog.dom.getElement('libs');
-
-		var dom_ = new goog.dom.DomHelper();
-		dom_.removeChildren(classesContainer);
-		dom_.removeChildren(libsContainer);
-
-		try {
-			obj = x.getResponseJson();
-		} catch (e) {
-			setStatus('Network error. Try later');
-			return;
-		}
-
-		totalClasses = obj['totalClasses'];
-		goog.dom.appendChild(classesContainer, goog.dom.createDom('div', {
-			'class' : 'title'
-		}, 'Found ' + totalClasses + ' classes'));
-
-		classes = obj['classes'];
-		for (i = 0; i < classes.length; i++) {
-			var jc = new tutorial.notepad.JavaClass(classes[i]['packageName'],
-					classes[i]['className'], classesContainer);
-			jc.makeDom();
-		}
-
-		totalLibs = obj['totalLibs'];
-		goog.dom.appendChild(libsContainer, goog.dom.createDom('div', {
-			'class' : 'title'
-		}, 'Found ' + totalLibs + ' libs'));
-
-		classes = obj['libs'];
-		for (i = 0; i < classes.length; i++) {
-			var l = new tutorial.notepad.JavaLib(classes[i]['packageId'],
-					classes[i]['artifactId'], libsContainer);
-			l.makeDom();
-		}
-	}
-
-	function initSearchPage() {
-		var searchInput = goog.dom.getElement('searchInput')
-		goog.events.listen(searchInput, goog.events.EventType.KEYUP,
-				function(e) {
-					if (this.value.length > 1) {
-						setStatus('Searching...');
-						var xhr = new goog.net.XhrIo();
-						xhr.send('/search?token=' + this.value);
-						goog.events.listen(xhr, goog.net.EventType.COMPLETE,
-								function(e) {
-									showSearchResults(this, e);
-								});
-					} else {
-						setStatus('Type at least 2 charachters')
-					}
-				});
-
-	}
-</script>
-
+    <meta charset="UTF-8">
+    <title>Clojurescript Dev</title>
+    <script src="/jslib/jquery-1.7.js"></script>
 
 <link rel="stylesheet" href="/css/search.css">
 <link rel="stylesheet" href="/jslib/bootstrap/css/bootstrap.css">
@@ -94,8 +10,8 @@
 	href="/jslib/bootstrap/css/bootstrap-responsive.css">
 
 </head>
-</head>
 <body>
+
 	<div class="container">
 
 		<h1 style="margin: 30px;">Hi</h1>
@@ -118,12 +34,17 @@
 		</div>
 
 	</div>
-	<script>
 
-         $(document).ready( 
-        		initSearchPage       ()
-       );
 
+    <script type="text/javascript"
+  src="/jslib/closure-library/closure/goog/base.js">
+  </script>
+    <script type="text/javascript" src="main.js"></script>
+    <script type="text/javascript">
+        goog.require('net.kolov.jacla.search');
     </script>
+
 </body>
 </html>
+  
+  
