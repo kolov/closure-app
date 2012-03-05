@@ -1,11 +1,12 @@
 (ns net.kolov.jacla.search
   (:require [clojure.browser.repl :as repl]
             [goog.dom :as dom] [goog.net :as net]
-            [goog.events :as events])  
+            [goog.events :as events])
+  (:require-macros [net.kolov.csutil :as csutil])
   (:use [jayq.core :only [$ css inner]])
   )
 
-                                        ; see how to config this
+; see how to config this
 ;(repl/connect "http://localhost:9000/repl")
 
 
@@ -22,11 +23,12 @@
   [line]
   (js->clj (JSON/parse line)))
 
-(def search-input (dom/getElement "searchInput"))
-(def search-status (dom/getElement "searchStatus"))
-(def classes-container (dom/getElement "classes"))
-(def libs-container (dom/getElement "libs"))
 
+(csutil/defelement  search-input "searchInput")
+(csutil/defelement  search-status "searchStatus")
+(csutil/defelement  classes-container "classes")
+(csutil/defelement  libs-container "libs")
+ 
 
 (def dom_ (dom/DomHelper.))
 (defn append-div [parent clazz content]
@@ -36,6 +38,7 @@
    (.removeChildren dom_ search-status)
       (append-div search-status "title" t)
       )
+
 (defn classname [c] (str (c "packageName") "." (c "className")))
 (defn libname [c] (str (c "artifactId") ":" (c "packageId")))
 
@@ -57,14 +60,13 @@
     ))
 
 (defn query [t]
-  (do (set-status "Searching...")
+  (set-status "Searching...")
       (let [x (net/XhrIo.)]
         (do
           (events/listen x (.-COMPLETE net/EventType) #(update-result x))
-          (.send x (str "/search?token=" t))))))
+          (.send x (str "/search?token=" t)))))
 
-(def KEYUP (.-KEYUP events/EventType) )
-(events/listen search-input KEYUP
+(events/listen search-input (.-KEYUP events/EventType)
                (fn []
                  (let [txt (.-value search-input)]
                    (if (> (count txt) 1)
