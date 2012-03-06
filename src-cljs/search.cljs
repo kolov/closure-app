@@ -2,7 +2,8 @@
   (:require [clojure.browser.repl :as repl]
             [goog.dom :as dom] [goog.net :as net]
             [goog.events :as events]
-            [goog.ui.tree.TreeControl :as tree])
+            [goog.ui.tree.TreeControl :as tree]
+            [goog.ui.Component :as component])
   (:require-macros [net.kolov.csutil :as csutil])
   (:use [jayq.core :only [$ css inner]])
   )
@@ -47,14 +48,13 @@
 (def tree-config tree/defaultConfig)
 (set! (.-cleardotPath tree-config) "/closure-library/closure/goog/images/tree/cleardot.gif")
 
-(defn fill-libs [node] (js/alert node))
+(defn fill-libs [node] (do (js/alert  (.getHtml node)) false))
 (defn create-tree-node [txt parent]
   (let [node  (.createNode (.getTree parent) txt)]
     (.setHtml node txt)
     (.add parent node)
-    (.setExpanded node false)
-   
-    (.add node (.createNode (.getTree node) "x")) node))
+    (.setExpanded node false)   
+    (.add node (.createNode (.getTree node) "Loading...")) node))
 
 (defn make-lib-tree [libs]
   (let [treeControl (goog.ui.tree.TreeControl. "root" tree-config)]
@@ -62,7 +62,8 @@
     (doseq [lib libs] (create-tree-node (libname lib) treeControl))
     (.render treeControl libs-tree)
     (.setShowRootNode treeControl false)
-     (events/listen treeControl (.-FOCUS events/EventType) #(fill-libs %))
+    (doseq [node (.getChildren treeControl)]
+      (events/listen (.getElement node)  (.-CLICK events/EventType) #(fill-libs node) ))
     ))
    
 (defn update-result [x]
