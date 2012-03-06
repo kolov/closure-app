@@ -1,7 +1,8 @@
 (ns net.kolov.jacla.search
   (:require [clojure.browser.repl :as repl]
             [goog.dom :as dom] [goog.net :as net]
-            [goog.events :as events])
+            [goog.events :as events]
+            [goog.ui.tree.TreeControl :as tree])
   (:require-macros [net.kolov.csutil :as csutil])
   (:use [jayq.core :only [$ css inner]])
   )
@@ -28,6 +29,7 @@
 (csutil/defelement  search-status "searchStatus")
 (csutil/defelement  classes-container "classes")
 (csutil/defelement  libs-container "libs")
+(csutil/defelement  libs-tree "libs-tree")
  
 
 (def dom_ (dom/DomHelper.))
@@ -42,6 +44,27 @@
 (defn classname [c] (str (c "packageName") "." (c "className")))
 (defn libname [c] (str (c "artifactId") ":" (c "packageId")))
 
+(def tree-config tree/defaultConfig)
+(set! (.-cleardotPath tree-config) "/closure-library/closure/goog/images/tree/cleardot.gif")
+
+(defn fill-libs [node] (js/alert node))
+(defn create-tree-node [txt parent]
+  (let [node  (.createNode (.getTree parent) txt)]
+    (.setHtml node txt)
+    (.add parent node)
+    (.setExpanded node false)
+   
+    (.add node (.createNode (.getTree node) "x")) node))
+
+(defn make-lib-tree [libs]
+  (let [treeControl (goog.ui.tree.TreeControl. "root" tree-config)]
+    (.removeChildren dom_ libs-tree)
+    (doseq [lib libs] (create-tree-node (libname lib) treeControl))
+    (.render treeControl libs-tree)
+    (.setShowRootNode treeControl false)
+     (events/listen treeControl (.-FOCUS events/EventType) #(fill-libs %))
+    ))
+   
 (defn update-result [x]
   (let [resp (.getResponse x)
         v (json-parse resp)
@@ -57,6 +80,7 @@
     (append-div libs-container "title" (str "Found " totaLibs " libs"))
     (doseq [lib libs]
       (append-div libs-container "clazz" (libname lib)))
+    (make-lib-tree libs)
     ))
 
 (defn query [t]
