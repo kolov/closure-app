@@ -3,7 +3,8 @@
             [goog.dom :as dom] [goog.net :as net]
             [goog.events :as events]
             [goog.ui.tree.TreeControl :as tree]
-            [goog.ui.Component :as component])
+            [goog.ui.Component :as component]
+            [clojure.string :as str])
   (:require-macros [net.kolov.csutil :as csutil])
   (:use [jayq.core :only [$ css inner]])
   )
@@ -28,27 +29,54 @@
 
 (csutil/defelement  search-input "searchInput")
 (csutil/defelement  search-status "searchStatus")
-(csutil/defelement  classes-container "classes")
-(csutil/defelement  libs-container "libs")
+(csutil/defelement  classes-container "classes") 
 (csutil/defelement  libs-tree "libs-tree")
+(csutil/defelement  libs-head "libs-head")
+(csutil/defelement  classes-head "classes-head")
  
+(defn query-update [q f]
+  "Query q and execute f on completion"
+  (let [x (net/XhrIo.)]
+     (events/listen x (.-COMPLETE net/EventType) #(f x))
+     (.send x q)))
 
 (def dom_ (dom/DomHelper.))
 (defn append-div [parent clazz content]
   (dom/appendChild parent (dom/createDom "div" {"class" clazz} content)))
 
-(defn set-status [t]
-   (.removeChildren dom_ search-status)
-      (append-div search-status "title" t)
+(defn set-div-text [d t]
+   (.removeChildren dom_ d)
+      (append-div d "title" t)
       )
 
+(defn set-status [t] (set-div-text search-status t))
+(defn set-classes-head [t] (set-div-text classes-head t))
+(defn set-libs-head [t] (set-div-text libs-head t))
+
 (defn classname [c] (str (c "packageName") "." (c "className")))
-(defn libname [c] (str (c "artifactId") ":" (c "packageId")))
+(defn libname [c] (str (c "packageId") ":" (c "artifactId")))
 
 (def tree-config tree/defaultConfig)
 (set! (.-cleardotPath tree-config) "/closure-library/closure/goog/images/tree/cleardot.gif")
 
-(defn fill-libs [node] (do (js/alert  (.getHtml node)) false))
+(defn make-query-string [libnode]
+  (-> (str "/list/maven/central/" (.getHtml libnode))
+       (str/replace ":" "/")
+       (str/replace "." "/")))
+
+(defn fill-libs [node]
+  (.removeChildren node) 
+  (query-update
+   (make-query-string node)
+   (fn [x] (let [resp (.getResponse x)                
+                 v (json-parse resp)
+                 versions (v "versions")]
+             (doseq [version versions]
+               (let [v-string (version "version")
+                     newNode (.createNode (.getTree node) v-string)]
+                
+                 (.add node newNode) ))))))
+
 (defn create-tree-node [txt parent]
   (let [node  (.createNode (.getTree parent) txt)]
     (.setHtml node txt)
@@ -63,7 +91,7 @@
     (.render treeControl libs-tree)
     (.setShowRootNode treeControl false)
     (doseq [node (.getChildren treeControl)]
-      (events/listen (.getElement node)  (.-CLICK events/EventType) #(fill-libs node) ))
+      (events/listenOnce (.getElement node)  (.-CLICK events/EventType) #(fill-libs node) ))
     ))
    
 (defn update-result [x]
@@ -73,23 +101,21 @@
         classes (v "classes")
         totalLibs (v "totalLibs")
         libs (v "libs")]
-    (.removeChildren dom_ classes-container)
-    (append-div classes-container "title" (str "Found " totalClasses " classes"))
+    (.removeChildren dom_ classes-container) 
+    (set-classes-head (str "Found " totalClasses " classes"))
     (doseq [clazz classes]
       (append-div classes-container "clazz" (classname clazz)))
-    (.removeChildren dom_ libs-container)
-    (append-div libs-container "title" (str "Found " totaLibs " libs"))
-    (doseq [lib libs]
-      (append-div libs-container "clazz" (libname lib)))
+ 
+    (set-libs-head (str "Found " totalLibs " libs"))
+   
     (make-lib-tree libs)
     ))
 
+
+
 (defn query [t]
   (set-status "Searching...")
-      (let [x (net/XhrIo.)]
-        (do
-          (events/listen x (.-COMPLETE net/EventType) #(update-result x))
-          (.send x (str "/search?token=" t)))))
+  (query-update (str "/search?token=" t) update-result))
 
 (events/listen search-input (.-KEYUP events/EventType)
                (fn []
