@@ -64,17 +64,23 @@
        (str/replace ":" "/")
        (str/replace "." "/")))
 
-(defn fill-libs [node]
-  (.removeChildren node) 
+(defn make-lib-html [v]
+  (if (v "source")
+    (str "<a href=\"#\">Click </a>")
+    (str "<span class=\"small\">no source</span>")))
+
+(defn fill-libs [node]  
   (query-update
    (make-query-string node)
    (fn [x] (let [resp (.getResponse x)                
                  v (json-parse resp)
-                 versions (v "versions")]
+                 versions (v "versions")
+                ]
+             (.removeChildren node) 
              (doseq [version versions]
                (let [v-string (version "version")
                      newNode (.createNode (.getTree node) v-string)]
-                
+                 (.setAfterLabelHtml newNode (make-lib-html version))
                  (.add node newNode) ))))))
 
 (defn create-tree-node [txt parent]
