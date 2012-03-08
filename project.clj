@@ -10,7 +10,8 @@
   :dev-dependencies [[ring/ring-devel "1.1.0-SNAPSHOT"]
                      [lein-ring "0.5.4"]
                      [ring-serve "0.1.1"]
-                     [lein-cljsbuild "0.1.2"]]
+                     ]
+  :plugins [[lein-cljsbuild "0.1.2"]]
   :main net.kolov.jaclo.server
   :ring {:handler net.kolov.jaclo.core/app}
   :cljsbuild {
