@@ -10,13 +10,15 @@
             [clojure.string :as s]
             ))
 
-(def AJC-URL "http://service.alljavaclasses.com/search")
+(def AJC-URL "http://service.alljavaclasses.com")
 (defn svc-call [s] (:body (c/get s)))
 (defn ajc-call [s] (svc-call (str AJC-URL s)))
 
 (defroutes app-routes
   (GET "/search" [:as req]
-    {:body (svc-call (str AJC-URL "?" (:query-string req)))})
+    {:body (svc-call (str AJC-URL "/search?" (:query-string req)))})
+ (GET "/list/*" [:as req]
+    {:body (svc-call (str AJC-URL (:uri req)))})
   (GET "/req/*" [:as r] {:body (str r)})
   (r/resources "/")
   (r/not-found "<h1>Page not found</h1> <br/> Try <a href=\"/search.html\">search.html</a>")
