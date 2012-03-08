@@ -1,1 +1,1 @@
-web: lein run -m net.kolov.jaclo.server $PORT
+web: ./compile-run.sh 
