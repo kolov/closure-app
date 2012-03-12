@@ -21,5 +21,5 @@
    :compiler
    {:pretty-print true,
     :output-to "resources/public/cljs/main.js",
-    :optimizations :advanced}}]}
+    :optimizations :whitespace}}]}
   )
