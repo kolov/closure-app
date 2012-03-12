@@ -23156,7 +23156,7 @@ clojure.browser.repl.connect = function connect(repl_server_url) {
 goog.provide("net.kolov.jacla.search");
 goog.require("cljs.core");
 goog.require("jayq.core");
-goog.require("goog.net.XhrIo");
+goog.require("goog.net");
 goog.require("goog.dom");
 goog.require("clojure.browser.repl");
 goog.require("goog.events");
@@ -23177,7 +23177,7 @@ net.kolov.jacla.search.libs_tree = goog.dom.getElement.call(null, "libs-tree");
 net.kolov.jacla.search.libs_head = goog.dom.getElement.call(null, "libs-head");
 net.kolov.jacla.search.classes_head = goog.dom.getElement.call(null, "classes-head");
 net.kolov.jacla.search.query_update = function query_update(q, f) {
-  var x__3086 = new net.kolov.jacla.search.gxhr;
+  var x__3086 = new goog.net.XhrIo;
   goog.events.listen.call(null, x__3086, goog.net.EventType.COMPLETE, function() {
     return f.call(null, x__3086)
   });

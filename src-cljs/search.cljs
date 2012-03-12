@@ -1,6 +1,6 @@
 (ns net.kolov.jacla.search
   (:require
-   [goog.net.XhrIo :as gxhr] 
+   [goog.net :as net] 
             [goog.dom :as dom]
             [clojure.browser.repl :as repl]
             [goog.events :as events]
@@ -38,7 +38,7 @@
     
 (defn query-update [q f]
   "Query q and execute f on completion"
-  (let [x (gxhr.)]
+  (let [x (net/XhrIo.)]
      (events/listen x (.-COMPLETE goog.net.EventType) #(f x))
      (.send x q)))
 
