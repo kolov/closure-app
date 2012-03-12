@@ -15,10 +15,11 @@
   :main net.kolov.jaclo.server
   :ring {:handler net.kolov.jaclo.core/app}
 ;  :hooks [leiningen.cljsbuild]
-  :cljsbuild {
-          :source-path "src-cljs"
-          :compiler {
-            :output-to "resources/public/cljs/main.js"
-            :optimizations :advanced
-            :pretty-print true}}
+ :cljsbuild
+{:builds
+ [{:source-path "src-cljs",
+   :compiler
+   {:pretty-print true,
+    :output-to "resources/public/cljs/main.js",
+    :optimizations :advanced}}]}
   )
