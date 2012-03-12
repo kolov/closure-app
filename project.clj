@@ -14,6 +14,7 @@
   :plugins [[lein-cljsbuild "0.1.2"]]
   :main net.kolov.jaclo.server
   :ring {:handler net.kolov.jaclo.core/app}
+  :hooks [leiningen.cljsbuild]
   :cljsbuild {
           :source-path "src-cljs"
           :compiler {
