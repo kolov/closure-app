@@ -1,6 +1,7 @@
 (ns net.kolov.jacla.search
   (:require [clojure.browser.repl :as repl]
-            [goog.dom :as dom] [goog.net :as net]
+            [goog.dom :as dom]
+            
             [goog.events :as events]
             [goog.ui.tree.TreeControl :as tree]
             [goog.ui.Component :as component]
@@ -33,7 +34,7 @@
 (csutil/defelement  libs-tree "libs-tree")
 (csutil/defelement  libs-head "libs-head")
 (csutil/defelement  classes-head "classes-head")
- 
+    
 (defn query-update [q f]
   "Query q and execute f on completion"
   (let [x (net/XhrIo.)]
