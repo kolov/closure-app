@@ -1,6 +1,5 @@
 (ns net.kolov.jacla.search
-  (:require
-   [goog.net :as net] 
+  (:require [goog.net :as net]
             [goog.dom :as dom]
             [clojure.browser.repl :as repl]
             [goog.events :as events]
@@ -29,27 +28,27 @@
   (js->clj (JSON/parse line)))
 
 
-(csutil/defelement  search-input "searchInput")
-(csutil/defelement  search-status "searchStatus")
-(csutil/defelement  classes-container "classes") 
-(csutil/defelement  libs-tree "libs-tree")
-(csutil/defelement  libs-head "libs-head")
-(csutil/defelement  classes-head "classes-head")
-    
+(csutil/defelement search-input "searchInput")
+(csutil/defelement search-status "searchStatus")
+(csutil/defelement classes-tree "classes-tree")
+(csutil/defelement libs-tree "libs-tree")
+(csutil/defelement libs-head "libs-head")
+(csutil/defelement classes-head "classes-head")
+
 (defn query-update [q f]
   "Query q and execute f on completion"
   (let [x (net/XhrIo.)]
-     (events/listen x (.-COMPLETE goog.net.EventType) #(f x))
-     (.send x q)))
+    (events/listen x (.-COMPLETE goog.net.EventType) #(f x))
+    (.send x q)))
 
 (def dom_ (dom/DomHelper.))
 (defn append-div [parent clazz content]
   (dom/appendChild parent (dom/createDom "div" {"class" clazz} content)))
 
 (defn set-div-text [d t]
-   (.removeChildren dom_ d)
-      (append-div d "title" t)
-      )
+  (.removeChildren dom_ d)
+  (append-div d "title" t)
+  )
 
 (defn set-status [t] (set-div-text search-status t))
 (defn set-classes-head [t] (set-div-text classes-head t))
@@ -63,33 +62,50 @@
 
 (defn make-query-string [libnode]
   (-> (str "/list/maven/central/" (.getHtml libnode))
-       (str/replace ":" "/")
-       (str/replace "." "/")))
+    (str/replace ":" "/")
+    (str/replace "." "/")))
 
 (defn make-lib-html [v]
   (if (v "source")
     (str "<a href=\"#\">Click </a>")
     (str "<span class=\"small\">no source</span>")))
 
-(defn fill-libs [node]  
+(defn fill-libs [node]
   (query-update
-   (make-query-string node)
-   (fn [x] (let [resp (.getResponse x)                
-                 v (json-parse resp)
-                 versions (v "versions")
-                ]
-             (.removeChildren node) 
-             (doseq [version versions]
-               (let [v-string (version "version")
-                     newNode (.createNode (.getTree node) v-string)]
-                 (.setAfterLabelHtml newNode (make-lib-html version))
-                 (.add node newNode) ))))))
+    (make-query-string node)
+    (fn [x] (let [resp (.getResponse x)
+                  v (json-parse resp)
+                  versions (v "versions")
+                  ]
+              (.removeChildren node)
+              (doseq [version versions]
+                (let [v-string (version "version")
+                      newNode (.createNode (.getTree node) v-string)]
+                  (.setAfterLabelHtml newNode (make-lib-html version))
+                  (.add node newNode)))))))
+
+
+(defn fill-classes [node]
+  (query-update
+    (make-query-string node)
+    (fn [x] (let [resp (.getResponse x)
+                  v (json-parse resp)
+                  versions (v "versions")
+                  ]
+              (.removeChildren node)
+              (doseq [version versions]
+                (let [v-string (version "version")
+                      newNode (.createNode (.getTree node) v-string)]
+                  (.setAfterLabelHtml newNode (make-lib-html version))
+                  (.add node newNode)))))))
+
+
 
 (defn create-tree-node [txt parent]
-  (let [node  (.createNode (.getTree parent) txt)]
+  (let [node (.createNode (.getTree parent) txt)]
     (.setHtml node txt)
     (.add parent node)
-    (.setExpanded node false)   
+    (.setExpanded node false)
     (.add node (.createNode (.getTree node) "Loading...")) node))
 
 (defn make-lib-tree [libs]
@@ -99,9 +115,18 @@
     (.render treeControl libs-tree)
     (.setShowRootNode treeControl false)
     (doseq [node (.getChildren treeControl)]
-      (events/listenOnce (.getElement node)  (.-CLICK events/EventType) #(fill-libs node) ))
+      (events/listenOnce (.getElement node) (.-CLICK events/EventType) #(fill-libs node)))
     ))
-   
+
+(defn make-classes-tree [classes]
+  (let [treeControl (goog.ui.tree.TreeControl. "root" tree-config)]
+    (.removeChildren dom_ classes-tree)
+  (doseq [class classes] (create-tree-node (classname class) treeControl))
+    (.render treeControl classes-tree)
+  (.setShowRootNode treeControl false)
+    (doseq [node (.getChildren treeControl)]
+      (events/listenOnce (.getElement node) (.-CLICK events/EventType) #(fill-classes node)))
+    ))
 (defn update-result [x]
   (let [resp (.getResponse x)
         v (json-parse resp)
@@ -109,13 +134,12 @@
         classes (v "classes")
         totalLibs (v "totalLibs")
         libs (v "libs")]
-    (.removeChildren dom_ classes-container) 
+
     (set-classes-head (str "Found " totalClasses " classes"))
-    (doseq [clazz classes]
-      (append-div classes-container "clazz" (classname clazz)))
- 
+    (make-classes-tree classes)
+
     (set-libs-head (str "Found " totalLibs " libs"))
-   
+
     (make-lib-tree libs)
     ))
 
@@ -126,10 +150,10 @@
   (query-update (str "/search?token=" t) update-result))
 
 (events/listen search-input (.-KEYUP events/EventType)
-               (fn []
-                 (let [txt (.-value search-input)]
-                   (if (> (count txt) 1)
-                     (query txt)
-                     (set-status "Type at least 2 characters")))))
- 
-(defn ^export initSearchPage[]  (js/alert (str search-input)))
+  (fn []
+    (let [txt (.-value search-input)]
+      (if (> (count txt) 1)
+        (query txt)
+        (set-status "Type at least 2 characters")))))
+
+(defn ^:export initSearchPage [] (js/alert (str search-input)))
