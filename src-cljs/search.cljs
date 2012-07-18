@@ -74,7 +74,7 @@
 
 (defn make-lib-html [v]
   (if (v "source")
-    (str "<a href=\"#\">Click </a>")
+    (str "<a href=\"#\">"  (v "source") "</a>")
     (str "<span class=\"small\">no source</span>")))
 
 (defn make-family-name [f]
@@ -101,8 +101,7 @@
     (make-lib-query-string node)
     (fn [x] (let [resp (.getResponse x)
                   v (json-parse resp)
-                  versions (v "versions")
-                  ]
+                  versions (v "versions")]
               (.removeChildren node)
               (doseq [version versions]
                 (let [v-string (version "version")
@@ -130,19 +129,14 @@
   (query-update
     (make-fam-query-string node)
     (fn [x] (let [resp (.getResponse x)
-                  v (json-parse resp)
-                  versions (v "versions")
+                  libraries (json-parse resp)
                   ]
               (.removeChildren node)
-              (doseq [version versions]
-                (let [v-string (version "version")
-                      newNode (.createNode (.getTree node) v-string)]
-                  (.setAfterLabelHtml newNode (make-lib-html version))
+              (doseq [library libraries]
+                (let [
+                      newNode (.createNode (.getTree node) (library "version"))]
+                  (.setAfterLabelHtml newNode "hehe")
                   (.add node newNode)))))))
-
-
-
-
 
 (defn make-lib-tree [libs]
   (let [treeControl (goog.ui.tree.TreeControl. "root" tree-config)]
@@ -163,6 +157,7 @@
     (doseq [node (.getChildren treeControl)]
       (events/listenOnce (.getElement node) (.-CLICK events/EventType) #(class-node-click-handler node)))
     ))
+
 (defn update-result [x]
   (let [resp (.getResponse x)
         v (json-parse resp)
@@ -183,7 +178,9 @@
 
 (defn query [t]
   (set-status "Searching...")
-  (query-update (str "/search?token=" t) update-result))
+  (query-update (str "/search?token=" t) update-result)
+   (set-status "")
+  )
 
 (events/listen search-input (.-KEYUP events/EventType)
   (fn []

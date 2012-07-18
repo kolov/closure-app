@@ -1,55 +1,62 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Clojurescript Dev</title>
+    <title>All Java classes</title>
     <script src="/jslib/jquery-1.7.js"></script>
 
-<link rel="stylesheet" href="/css/search.css">
-<link rel="stylesheet" href="/jslib/bootstrap/css/bootstrap.css">
-<link rel="stylesheet"
-	href="/jslib/bootstrap/css/bootstrap-responsive.css">
+    <link rel="stylesheet" href="/css/search.css">
+    <link rel="stylesheet" href="/jslib/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet"
+          href="/jslib/bootstrap/css/bootstrap-responsive.css">
 
-<link rel="stylesheet" href="/closure-library/closure/goog/css/demo.css">
-  <link rel="stylesheet" href="/closure-library/closure/goog/css/tree.css">
+    <link rel="stylesheet" href="/closure-library/closure/goog/css/demo.css">
+    <link rel="stylesheet" href="/closure-library/closure/goog/css/tree.css">
 
 </head>
 <body>
 
-	<div class="container"> 
+<div class="container">
 
-		<h1 style="margin: 30px;">Hi</h1>
+    <div class="page-header">
+        <h1 style="margin: 30px;">All Java Classes</h1>
+    </div>
 
-		<div class="row">
-			<div class="span2">Search:</div>
-			<div class="span9">
-				<input type='text' id="searchInput" style="width: 60em;">
-				</textarea>
-			</div>
-		</div>
+    <div class="row">
+          <div class="span1">Search</div>
+          <div class="span11">
+              <input type='text' id="searchInput" style="width: 60em;">
+          </div>
+      </div>
+    <div class="row">
+          <div class="span2">&nbsp;</div>
+          <div class="span9">
+              Enter part of a Java class or library name
+          </div>
+      </div>
 
-		<div class="row">
-			<div id="searchStatus" class="span10"></div>
-		</div>
+    <div class="row">
+        <div id="searchStatus" class="span10"></div>
+    </div>
 
-		<div class="row">
-			<div id="classes-head" class="span6"></div> 
-			<div id="libs-head" class="span6"></div>
-		</div>
-		<div class="row">
-			<div id="classes-tree" class="span6"></div>
-			<div id="libs-tree" class="span6"></div>
-		</div>
+    <div class="row">
+        <div id="classes-head" class="span6"></div>
+        <div id="libs-head" class="span6"></div>
+    </div>
+    <div class="row">
+        <div id="classes-tree" class="span6"></div>
+        <div id="libs-tree" class="span6"></div>
+    </div>
 
-	</div>
+</div>
 
 
-    <script type="text/javascript"
-  src="/closure-library/closure/goog/base.js">
-  </script>
-    <script type="text/javascript" src="cljs/main.js"></script>
-    <script type="text/javascript">
-        goog.require('net.kolov.jacla.search');
-    </script>
+<script type="text/javascript"
+        src="/closure-library/closure/goog/base.js">
+</script>
+<script type="text/javascript" src="cljs/main.js"></script>
+<script type="text/javascript">
+    goog.require('net.kolov.jacla.search');
+</script>
 
 </body>
 </html>
