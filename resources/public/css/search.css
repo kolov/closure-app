@@ -18,3 +18,13 @@
     margin: 3px;
     font-style: italic;
 }
+
+#packages {
+     background-color: #008000;
+}
+#classes {
+     background-color: #00a000;
+}
+#source {
+     background-color: #00a0a0;
+}

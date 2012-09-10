@@ -5,9 +5,10 @@
             [goog.events :as events]
             [goog.ui.tree.TreeControl :as tree]
             [goog.ui.Component :as component]
-            [clojure.string :as str])
+            [clojure.string :as str] )
   (:require-macros [net.kolov.csutil :as csutil])
-  (:use [jayq.core :only [$ css inner]])
+  (:use [jayq.core :only [$ css inner]]
+      )
   )
 
 ; see how to config this
@@ -17,8 +18,7 @@
 (def jquery (js* "$"))
 
 (defn json-generate
-  "Returns a newline-terminate JSON string from the given
-   ClojureScript data."
+  "Returns a newline-terminated JSON string from ClojureScript data."
   [data]
   (str (JSON/stringify (clj->js data)) "\n"))
 
@@ -26,6 +26,15 @@
   "Returns ClojureScript data from a JSON string."
   [line]
   (js->clj (JSON/parse line)))
+
+(def dom_ (dom/DomHelper.))
+
+(defn query-update [q f]
+  "Query q and execute f on completion"
+  (let [x (net/XhrIo.)]
+    (events/listen x (.-SUCCESS goog.net.EventType) #(f x))
+    (events/listen x (.-ERROR goog.net.EventType) #(set-status "Network error. Try again later"))
+    (.send x q)))
 
 
 (csutil/defelement search-input "searchInput")
@@ -35,13 +44,7 @@
 (csutil/defelement libs-head "libs-head")
 (csutil/defelement classes-head "classes-head")
 
-(defn query-update [q f]
-  "Query q and execute f on completion"
-  (let [x (net/XhrIo.)]
-    (events/listen x (.-COMPLETE goog.net.EventType) #(f x))
-    (.send x q)))
 
-(def dom_ (dom/DomHelper.))
 (defn append-div [parent clazz content]
   (dom/appendChild parent (dom/createDom "div" {"class" clazz} content)))
 
@@ -72,9 +75,12 @@
 (defn make-fam-query-string [node]
   (str "/searchLibs?" (.getId node) "&class="(.getHtml (.getParent node))))
 
+(defn make-view-url [v]
+  (reduce str (interpose "/" ["/view" (v "repoType") (v "repoId") (v "packageId") (v "artifactId") (v "version")])))
+
 (defn make-lib-html [v]
   (if (v "source")
-    (str "<a href=\"#\">"  (v "source") "</a>")
+    (str "<a href=\"" (make-view-url v) "\" onclick=\"window.location='" (make-view-url v) "';\">source</a>")
     (str "<span class=\"small\">no source</span>")))
 
 (defn make-family-name [f]
@@ -95,6 +101,8 @@
     (.add parent node)
     (.setExpanded node false)
     (.add node (.createNode (.getTree node) "Loading...")) node))
+
+
 
 (defn libnode-click-handler [node]
   (query-update

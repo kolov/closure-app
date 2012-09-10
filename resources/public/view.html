@@ -1,0 +1,63 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>All Java classes</title>
+    <script src="/jslib/jquery-1.7.js"></script>
+
+    <link rel="stylesheet" href="/css/search.css">
+    <link rel="stylesheet" href="/jslib/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet"
+          href="/jslib/bootstrap/css/bootstrap-responsive.css">
+
+    <link rel="stylesheet" href="/closure-library/closure/goog/css/demo.css">
+    <link rel="stylesheet" href="/closure-library/closure/goog/css/tree.css">
+
+</head>
+<body>
+
+<div class="container">
+
+    <div class="page-header">
+        <h1 style="margin: 30px;">View</h1>
+    </div>
+    <div class="row">
+
+        <div id="left" class="span4">
+            <div class="row">
+                <div id="packages" class="span4">packages</div>
+            </div>
+            <div class="row">
+                <div id="classes" class="span4">classes</div>
+            </div>
+        </div>
+        <div id="class-source" class="span8">Source</div>
+    </div>
+
+</div>
+
+
+<script type="text/javascript"
+        src="/closure-library/closure/goog/base.js">
+</script>
+<script type="text/javascript" src="/cljs/view.js"></script>
+<script type="text/javascript">
+    goog.require('net.kolov.jacla.view');
+</script>
+<script type="text/javascript">
+    function adjustFlowHeight() {
+        var fullHeight = $(window).height() - $('#class-source').offset().top - 25;
+        $('#class-source').css('height', fullHeight + "px");
+        $('#left').css('height', fullHeight + "px");
+        var oneThird = fullHeight / 3;
+        $('#packages').css('height', oneThird + "px");
+        $('#classes').css('height', (fullHeight - oneThird) + "px");
+    }
+    $(adjustFlowHeight);
+    $(net.kolov.jacla.view.initViewPage) ;
+</script>
+
+
+</body>
+</html>
+  
+  

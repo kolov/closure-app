@@ -11,15 +11,19 @@
                      [lein-ring "0.5.4"]
                      [ring-serve "0.1.1"]
                      ]
-  :plugins [[lein-cljsbuild "0.1.2"]]
+  :plugins [[lein-cljsbuild "0.1.2"]
+            [lein-swank "1.4.4"]]
   :main net.kolov.jaclo.server
   :ring {:handler net.kolov.jaclo.core/app}
-;  :hooks [leiningen.cljsbuild]
- :cljsbuild
-{:builds
- [{:source-path "src-cljs",
-   :compiler
-   {:pretty-print true,
-    :output-to "resources/public/cljs/main.js",
-    :optimizations :whitespace}}]}
+  ;  :hooks [leiningen.cljsbuild]
+  :cljsbuild {:builds [{:source-path "src-cljs/search",
+                        :compiler {:pretty-print true,
+                                   :output-to "resources/public/cljs/search.js",
+                                   :optimizations :whitespace}}
+                       {:source-path "src-cljs/view",
+                        :compiler {:pretty-print true,
+                                   :output-to "resources/public/cljs/view.js",
+                                   :optimizations :whitespace}}
+                       ]
+              }
   )
