@@ -21,9 +21,11 @@
 
 #packages {
      background-color: #008000;
+     overflow: scroll;
 }
 #classes {
      background-color: #00a000;
+     overflow: scroll;
 }
 #source {
      background-color: #00a0a0;
