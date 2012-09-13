@@ -27,6 +27,12 @@
 
 (def dom_ (dom/DomHelper.))
 
+(defn clear-div [node] (dom/removeChildren node))
+
+(defn append-div [parent clazz content]
+  (let [child (dom/createDom "div" {"class" clazz} content)]
+    (dom/appendChild parent child) child))
+
 (defn query-update [q f]
   "Query q and execute f on completion"
   (let [x (net/XhrIo.)]
@@ -42,14 +48,31 @@
 
 (defn make-lib-query-string [url]
   (str "/list/" url "/!"))
+(defn make-package-query-string [url package]
+  (str "/list/" url "/!/" package))
+
+(defn make-package-link [p] p)
+
+(defn update-classes [url package-name]
+  (query-update (make-package-query-string url package-name)
+    (fn [x] (let [resp (.getResponse x)
+                  v (json-parse resp)
+                  classnames (v "classnames")]
+            ( do (clear-div classes)
+              (doseq [class-name classnames] (append-div classes "clazz" class-name)))))))
 
 (defn init-packages [url]
   (query-update (make-lib-query-string url)
-
     (fn [x] (let [resp (.getResponse x)
                   v (json-parse resp)
                   subgroups (v "subgroups")]
-              (js/alert (first subgroups))))))
+              (do (doseq [package-name subgroups]
+                (events/listen (append-div packages "package" (make-package-link package-name))
+                  (.-CLICK events/EventType) #(update-classes url package-name))
 
-  (defn ^:export initViewPage [] (let [url (second (str/split (str (. js/window -location)) "/view/"))]
-                                   (init-packages url)))
+                )
+              (update-classes url (first subgroups)))
+              ))))
+
+(defn ^:export initViewPage [] (let [url (second (str/split (str (. js/window -location)) "/view/"))]
+                                 (init-packages url)))

@@ -29,6 +29,9 @@
 
 (def dom_ (dom/DomHelper.))
 
+(defn append-div [parent clazz content]
+  (dom/appendChild parent (dom/createDom "div" {"class" clazz} content)))
+
 (defn query-update [q f]
   "Query q and execute f on completion"
   (let [x (net/XhrIo.)]
@@ -45,8 +48,6 @@
 (csutil/defelement classes-head "classes-head")
 
 
-(defn append-div [parent clazz content]
-  (dom/appendChild parent (dom/createDom "div" {"class" clazz} content)))
 
 (defn set-div-text [d t]
   (.removeChildren dom_ d)
