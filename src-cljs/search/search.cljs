@@ -1,44 +1,18 @@
 (ns net.kolov.jacla.search
-  (:require [goog.net :as net]
+  (:require
             [goog.dom :as dom]
             [clojure.browser.repl :as repl]
             [goog.events :as events]
             [goog.ui.tree.TreeControl :as tree]
             [goog.ui.Component :as component]
-            [clojure.string :as str] )
+            [clojure.string :as str]
+            [clojure.browser.repl :as repl])
   (:require-macros [net.kolov.csutil :as csutil])
   (:use [jayq.core :only [$ css inner]]
-      )
+        [jayq.util :only [map->js]]
+        [kolu.core :only [query-update json-parse append-div clear-div connect dom_]]
+        )
   )
-
-; see how to config this
-;(repl/connect "http://localhost:9000/repl")
-
-
-(def jquery (js* "$"))
-
-(defn json-generate
-  "Returns a newline-terminated JSON string from ClojureScript data."
-  [data]
-  (str (JSON/stringify (clj->js data)) "\n"))
-
-(defn json-parse
-  "Returns ClojureScript data from a JSON string."
-  [line]
-  (js->clj (JSON/parse line)))
-
-(def dom_ (dom/DomHelper.))
-
-(defn append-div [parent clazz content]
-  (dom/appendChild parent (dom/createDom "div" {"class" clazz} content)))
-
-(defn query-update [q f]
-  "Query q and execute f on completion"
-  (let [x (net/XhrIo.)]
-    (events/listen x (.-SUCCESS goog.net.EventType) #(f x))
-    (events/listen x (.-ERROR goog.net.EventType) #(set-status "Network error. Try again later"))
-    (.send x q)))
-
 
 (csutil/defelement search-input "searchInput")
 (csutil/defelement search-status "searchStatus")
@@ -46,8 +20,6 @@
 (csutil/defelement libs-tree "libs-tree")
 (csutil/defelement libs-head "libs-head")
 (csutil/defelement classes-head "classes-head")
-
-
 
 (defn set-div-text [d t]
   (.removeChildren dom_ d)
@@ -71,10 +43,10 @@
     (str/replace "." "/")))
 
 (defn make-class-query-string [classnode]
-  (str "/searchFamilies?class=" (.getHtml classnode) )
+  (str "/searchFamilies?class=" (.getHtml classnode))
   )
 (defn make-fam-query-string [node]
-  (str "/searchLibs?" (.getId node) "&class="(.getHtml (.getParent node))))
+  (str "/searchLibs?" (.getId node) "&class=" (.getHtml (.getParent node))))
 
 (defn make-view-url [v]
   (reduce str (interpose "/" ["/view" (v "repoType") (v "repoId") (v "packageId") (v "artifactId") (v "version")])))
@@ -85,15 +57,15 @@
     (str "<span class=\"small\">no source</span>")))
 
 (defn make-family-name [f]
-  (if (nil? ( f "artifactId"))
-  "JDK"
-  (str (f "packageId" ) ":" (f "artifactId"))))
+  (if (nil? (f "artifactId"))
+    "JDK"
+    (str (f "packageId") ":" (f "artifactId"))))
 (defn make-family-html [f] "_")
 (defn make-family-id [f]
   (str "repoType=" (f "repoType") "&repoId=" (f "repoId")
-  (if (nil? ( f "artifactId"))
-    ""
-    (str "&packageId=" (f "packageId") "&artifactId=" (f "artifactId")))) )
+    (if (nil? (f "artifactId"))
+      ""
+      (str "&packageId=" (f "packageId") "&artifactId=" (f "artifactId")))))
 
 (defn create-tree-node [id txt parent]
   (let [node (.createNode (.getTree parent) txt)]
@@ -116,7 +88,8 @@
                 (let [v-string (version "version")
                       newNode (.createNode (.getTree node) v-string)]
                   (.setAfterLabelHtml newNode (make-lib-html version))
-                  (.add node newNode)))))))
+                  (.add node newNode)))))
+    set-status))
 
 
 (defn class-node-click-handler [node]
@@ -131,7 +104,8 @@
                       newNode (create-tree-node (make-family-id family) (make-family-name family) node)]
 
                   (events/listenOnce (.getElement newNode) (.-CLICK events/EventType) #(famnode-click-handler newNode))
-                  )))))
+                  ))))
+    set-status)
   )
 
 (defn famnode-click-handler [node]
@@ -143,9 +117,10 @@
               (.removeChildren node)
               (doseq [library libraries]
                 (let [
-                      newNode (.createNode (.getTree node) (library "version"))]
+                       newNode (.createNode (.getTree node) (library "version"))]
                   (.setAfterLabelHtml newNode "hehe")
-                  (.add node newNode)))))))
+                  (.add node newNode)))))
+    set-status))
 
 (defn make-lib-tree [libs]
   (let [treeControl (goog.ui.tree.TreeControl. "root" tree-config)]
@@ -187,8 +162,8 @@
 
 (defn query [t]
   (set-status "Searching...")
-  (query-update (str "/search?token=" t) update-result)
-   (set-status "")
+  (query-update (str "/search?token=" t) update-result set-status)
+  (set-status "")
   )
 
 (events/listen search-input (.-KEYUP events/EventType)

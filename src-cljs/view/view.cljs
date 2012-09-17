@@ -1,53 +1,26 @@
 (ns net.kolov.jacla.view
-  (:require [goog.net :as net]
-            [goog.dom :as dom]
-            [clojure.browser.repl :as repl]
+  (:require [goog.dom :as dom]
             [goog.events :as events]
             [goog.ui.tree.TreeControl :as tree]
             [goog.ui.Component :as component]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [clojure.browser.repl :as repl])
   (:require-macros [net.kolov.csutil :as csutil])
-  (:use [jayq.core :only [$ css inner]])
+  (:use [jayq.core :only [$ css inner]]
+        [jayq.util :only [map->js]]
+        [kolu.core :only [query-update json-parse append-div clear-div connect]]
+        )
   )
-
-; see how to config this
-;(repl/connect "http://localhost:9000/repl")
-
-(def jquery (js* "$"))
-
-(defn json-generate
-  "Returns a newline-terminated JSON string from ClojureScript data."
-  [data]
-  (str (JSON/stringify (clj->js data)) "\n"))
-
-(defn json-parse
-  "Returns ClojureScript data from a JSON string."
-  [line]
-  (js->clj (JSON/parse line)))
-
-(def dom_ (dom/DomHelper.))
-
-(defn clear-div [node] (dom/removeChildren node))
-
-(defn append-div [parent clazz content]
-  (let [child (dom/createDom "div" {"class" clazz} content)]
-    (dom/appendChild parent child) child))
-
-(defn query-update [q f]
-  "Query q and execute f on completion"
-  (let [x (net/XhrIo.)]
-    (events/listen x (.-SUCCESS goog.net.EventType) #(f x))
-    (events/listen x (.-ERROR goog.net.EventType) #(set-status "Network error. Try again later"))
-    (.send x q)))
 
 
 (defn set-status [x])
-(csutil/defelement classes "classes")
-(csutil/defelement packages "packages")
+(csutil/defelement classes-div "classes")
+(csutil/defelement packages-div "packages")
 (csutil/defelement class-source "class-source")
 
 (defn make-lib-query-string [url]
   (str "/list/" url "/!"))
+
 (defn make-package-query-string [url package]
   (str "/list/" url "/!/" package))
 
@@ -58,21 +31,37 @@
     (fn [x] (let [resp (.getResponse x)
                   v (json-parse resp)
                   classnames (v "classnames")]
-            ( do (clear-div classes)
-              (doseq [class-name classnames] (append-div classes "clazz" class-name)))))))
+              (do (clear-div classes-div)
+                (doseq [class-name classnames] (append-div classes-div "clazz" class-name)))))
+    set-status))
 
 (defn init-packages [url]
+  "Reads all packages in a lib, filles the packages area"
   (query-update (make-lib-query-string url)
     (fn [x] (let [resp (.getResponse x)
                   v (json-parse resp)
-                  subgroups (v "subgroups")]
-              (do (doseq [package-name subgroups]
-                (events/listen (append-div packages "package" (make-package-link package-name))
-                  (.-CLICK events/EventType) #(update-classes url package-name))
+                  packages (v "subgroups")]
+              (do (doseq [package-name packages]
+                    (events/listen (append-div packages-div "package" (make-package-link package-name))
+                      (.-CLICK events/EventType) #(update-classes url package-name))
+                    )
+                (update-classes url (first packages)))
+              )) set-status))
 
-                )
-              (update-classes url (first subgroups)))
-              ))))
+(defn parse-url [url]
+  (let [parts (str/split url "/")
+        n (count parts)]
+    (cond (= n 5) {:library url}
+      (= n 6) {:library ((str interpose "/" (take 5 parts))), :class (last parts)}))
+  )
 
-(defn ^:export initViewPage [] (let [url (second (str/split (str (. js/window -location)) "/view/"))]
-                                 (init-packages url)))
+(defn ^:export initViewPage []
+  (let [url (second (str/split (str (. js/window -location)) "/view/"))
+        parts (parse-url url)
+        library (:library parts)
+        class (:class parts)
+        ]
+    (connect)
+    (init-packages library)
+    ;   (if class (update-classes library ) (do (update-classes library )))
+    ))
